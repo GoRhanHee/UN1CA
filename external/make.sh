@@ -212,6 +212,7 @@ if $EROFS_UTILS; then
 fi
 if $IMG2SDAT; then
     IMG2SDAT_CMDS=(
+        "test -f \"img2sdat\""
         "find \".\" -maxdepth 1 -type f -exec test -x {} \; -exec cp -a {} \"$TOOLS_DIR/bin\" \;"
     )
 

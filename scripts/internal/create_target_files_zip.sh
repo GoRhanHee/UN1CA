@@ -83,9 +83,12 @@ GENERATE_BUILD_INFO()
         echo "security_patch=$(GET_PROP "system" "ro.build.version.security_patch")"
         echo "source_fingerprint=$SOURCE_FINGERPRINT"
         echo "target_fingerprint=$TARGET_FINGERPRINT"
-        echo "super_partition_size=$TARGET_SUPER_PARTITION_SIZE"
-        echo "super_partition_group=$TARGET_SUPER_GROUP_NAME"
-        echo "super_${TARGET_SUPER_GROUP_NAME}_group_size=$(GET_SUPER_GROUP_SIZE)"
+        echo "use_dynamic_partitions=$TARGET_USE_DYNAMIC_PARTITIONS"
+        if $TARGET_USE_DYNAMIC_PARTITIONS; then
+            echo "super_partition_size=$TARGET_SUPER_PARTITION_SIZE"
+            echo "super_partition_group=$TARGET_SUPER_GROUP_NAME"
+            echo "super_${TARGET_SUPER_GROUP_NAME}_group_size=$(GET_SUPER_GROUP_SIZE)"
+        fi
     } > "$BUILD_INFO_FILE"
 }
 
@@ -117,17 +120,27 @@ while IFS= read -r f; do
     PARTITION=$(basename "$f")
     IS_VALID_PARTITION_NAME "$PARTITION" || continue
 
-    "$SRC_DIR/scripts/build_fs_image.sh" "$TARGET_OS_FILE_SYSTEM_TYPE" \
-        -o "$TMP_DIR/$PARTITION.img" -m -S \
-        "$WORK_DIR/$PARTITION" "$WORK_DIR/configs/file_context-$PARTITION" "$WORK_DIR/configs/fs_config-$PARTITION" || exit 1
+    if $TARGET_USE_DYNAMIC_PARTITIONS; then
+        "$SRC_DIR/scripts/build_fs_image.sh" "$TARGET_OS_FILE_SYSTEM_TYPE" \
+            -o "$TMP_DIR/$PARTITION.img" -m -S \
+            "$WORK_DIR/$PARTITION" "$WORK_DIR/configs/file_context-$PARTITION" "$WORK_DIR/configs/fs_config-$PARTITION" || exit 1
+    else
+        _GET_PARTITION_SIZE "$PARTITION" > /dev/null || exit 1
+
+        "$SRC_DIR/scripts/build_fs_image.sh" "$TARGET_OS_FILE_SYSTEM_TYPE" \
+            -o "$TMP_DIR/$PARTITION.img" -m -S -s "$(_GET_PARTITION_SIZE "$PARTITION")" \
+            "$WORK_DIR/$PARTITION" "$WORK_DIR/configs/file_context-$PARTITION" "$WORK_DIR/configs/fs_config-$PARTITION" || exit 1
+    fi
 done < <(find "$WORK_DIR" -maxdepth 1 -type d)
 LOG_STEP_OUT
 
-LOG "- Building unsparse_super_empty.img"
-BUILD_SUPER_EMPTY
+if $TARGET_USE_DYNAMIC_PARTITIONS; then
+    LOG "- Building unsparse_super_empty.img"
+    BUILD_SUPER_EMPTY
+fi
 
 if [ -d "$WORK_DIR/kernel" ]; then
-    KERNEL_BINS="boot.img dtbo.img init_boot.img vendor_boot.img"
+    KERNEL_BINS="boot.img dt.img dtbo.img init_boot.img vendor_boot.img"
 
     for f in $KERNEL_BINS; do
         [ ! -f "$WORK_DIR/kernel/$f" ] && continue

@@ -56,7 +56,7 @@ GENERATE_OP_LIST()
         done
     } > "$OP_LIST_FILE"
 
-    if [[ "$OCCUPIED_SPACE" -gt "$SUPER_GROUP_SIZE" ]]; then
+    if [ "$OCCUPIED_SPACE" -gt "$SUPER_GROUP_SIZE" ]; then
         LOGE "OS size ($OCCUPIED_SPACE) is bigger than the target group size ($SUPER_GROUP_SIZE)"
         exit 1
     fi
@@ -130,21 +130,23 @@ GENERATE_UPDATER_SCRIPT()
 
         PRINT_HEADER "$BUILD_INFO" || exit 1
 
-        # https://android.googlesource.com/platform/build/+/refs/tags/android-15.0.0_r1/tools/releasetools/common.py#4007
-        echo -e "\n# --- Start patching dynamic partitions ---\n"
-        echo -e "\n# Update dynamic partition metadata\n"
-        echo -n 'assert(update_dynamic_partitions(package_extract_file("dynamic_partitions_op_list")'
-        if [ -f "$TMP_DIR/unsparse_super_empty.img" ]; then
-            # https://github.com/LineageOS/android_build/commit/98549f6893c3a93057e2d4cdd1015a93e9473b16
-            # https://github.com/LineageOS/android_bootable_deprecated-ota/commit/e97be4333bd3824b8561c9637e9e6de28bc29da0
-            echo -n ', package_extract_file("unsparse_super_empty.img")'
+        if $TARGET_USE_DYNAMIC_PARTITIONS; then
+            # https://android.googlesource.com/platform/build/+/refs/tags/android-15.0.0_r1/tools/releasetools/common.py#4007
+            echo -e "\n# --- Start patching dynamic partitions ---\n"
+            echo -e "\n# Update dynamic partition metadata\n"
+            echo -n 'assert(update_dynamic_partitions(package_extract_file("dynamic_partitions_op_list")'
+            if [ -f "$TMP_DIR/unsparse_super_empty.img" ]; then
+                # https://github.com/LineageOS/android_build/commit/98549f6893c3a93057e2d4cdd1015a93e9473b16
+                # https://github.com/LineageOS/android_bootable_deprecated-ota/commit/e97be4333bd3824b8561c9637e9e6de28bc29da0
+                echo -n ', package_extract_file("unsparse_super_empty.img")'
+            fi
+            echo    '));'
         fi
-        echo    '));'
         for p in $PARTITIONS_LIST; do
             if [ ! -f "$TMP_DIR/$p.transfer.list" ]; then
                 continue
             fi
-            echo -e "\n# Patch partition $p\n"
+            $TARGET_USE_DYNAMIC_PARTITIONS && echo -e "\n# Patch partition $p\n"
             echo -n 'ui_print("Patching '
             echo -n "$p image unconditionally..."
             echo    '");'
@@ -155,9 +157,9 @@ GENERATE_UPDATER_SCRIPT()
             else
                 echo    'show_progress(0.100000, 0);'
             fi
-            echo -n 'block_image_update(map_partition("'
-            echo -n "$p"
-            echo -n '"), package_extract_file("'
+            echo -n "block_image_update("
+            GET_DEVICE_FROM_MOUNTPOINT "/$p"
+            echo -n ', package_extract_file("'
             echo -n "$p.transfer.list"
             echo -n '"), "'
             echo -n "$p.new.dat"
@@ -170,7 +172,7 @@ GENERATE_UPDATER_SCRIPT()
             echo -n ": Failed to update $p image."
             echo    '");'
         done
-        echo -e "\n# --- End patching dynamic partitions ---\n"
+        $TARGET_USE_DYNAMIC_PARTITIONS && echo -e "\n# --- End patching dynamic partitions ---\n"
 
         for b in $KERNEL_BINS; do
             if [ -f "$TMP_DIR/$b.img" ]; then
@@ -179,16 +181,16 @@ GENERATE_UPDATER_SCRIPT()
                 echo    '");'
                 echo -n 'package_extract_file("'
                 echo -n "$b.img"
-                echo -n '", "'
-                echo -n "$TARGET_OS_BOOT_DEVICE_PATH/$b"
-                echo    '");'
+                echo -n '", '
+                GET_DEVICE_FROM_MOUNTPOINT "/$b"
+                echo    ");"
             fi
         done
         if [ -f "$TMP_DIR/boot.img" ]; then
             echo    'ui_print("Installing boot image...");'
-            echo -n 'package_extract_file("boot.img", "'
-            echo -n "$TARGET_OS_BOOT_DEVICE_PATH"
-            echo    '/boot");'
+            echo -n 'package_extract_file("boot.img", '
+            GET_DEVICE_FROM_MOUNTPOINT "/boot"
+            echo    ");"
         fi
 
         echo    'show_progress(0.100000, 10);'
@@ -234,8 +236,12 @@ if [ ! -d "$SRC_DIR/target/$DEVICE" ]; then
     exit 1
 fi
 
-LOG "- Generating dynamic_partitions_op_list"
-GENERATE_OP_LIST
+TARGET_USE_DYNAMIC_PARTITIONS="$(grep "^use_dynamic_partitions" <<< "$BUILD_INFO" | cut -d "=" -f 2 -s)"
+
+if $TARGET_USE_DYNAMIC_PARTITIONS; then
+    LOG "- Generating dynamic_partitions_op_list"
+    GENERATE_OP_LIST
+fi
 
 for p in $PARTITIONS_LIST; do
     if [ ! -f "$TMP_DIR/$p.img" ]; then

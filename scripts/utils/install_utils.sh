@@ -4,9 +4,65 @@
 # [
 source "$SRC_DIR/scripts/utils/build_utils.sh" || return 1
 
-KERNEL_BINS="dtbo init_boot vendor_boot"
+KERNEL_BINS="dt dtbo init_boot vendor_boot"
 PARTITIONS_LIST="system vendor product system_ext odm vendor_dlkm odm_dlkm system_dlkm"
+
+_GET_PARTITION_SIZE()
+{
+    local PARTITION_NAME="$1"
+
+    local PARTITION_SIZE
+    PARTITION_SIZE="TARGET_$(tr "[:lower:]" "[:upper:]" <<< "$PARTITION_NAME")_PARTITION_SIZE"
+    _CHECK_NON_EMPTY_PARAM "$PARTITION_SIZE" "${!PARTITION_SIZE//none/}" || return 1
+
+    echo -n "${!PARTITION_SIZE}"
+}
 # ]
+
+# GET_DEVICE_FROM_MOUNTPOINT <mountpoint>
+# Returns the device path for the supplied mountpoint.
+GET_DEVICE_FROM_MOUNTPOINT()
+{
+    _CHECK_NON_EMPTY_PARAM "MOUNTPOINT" "$1" || return 1
+
+    local MOUNTPOINT="$1"
+
+    local FSTAB_FILE="$SRC_DIR/target/$TARGET_CODENAME/installer/recovery.fstab"
+    if [ ! -f "$FSTAB_FILE" ]; then
+        if grep -q "TARGET_PLATFORM=" "$SRC_DIR/target/$TARGET_CODENAME/config.sh"; then
+            FSTAB_FILE="$SRC_DIR/platform/"
+            FSTAB_FILE+="$(grep "TARGET_PLATFORM=" "$SRC_DIR/target/$TARGET_CODENAME/config.sh" | cut -d "=" -f 2 | sed "s/\"//g")"
+            FSTAB_FILE+="/installer/recovery.fstab"
+        fi
+    fi
+    if [ ! -f "$FSTAB_FILE" ]; then
+        LOGE "File not found: target/$TARGET_CODENAME/installer/recovery.fstab"
+        exit 1
+    fi
+
+    if $TARGET_USE_DYNAMIC_PARTITIONS && IS_VALID_PARTITION_NAME "${MOUNTPOINT/\//}"; then
+        echo -n "map_partition(\"${MOUNTPOINT/\//}\")"
+    else
+        local DEVICE
+        DEVICE="$(grep -w "$MOUNTPOINT" "$FSTAB_FILE")"
+        DEVICE="$(sed "/^#/d" <<< "$DEVICE")"
+        DEVICE="$(head -n 1 <<< "$DEVICE")"
+        DEVICE="$(cut -f 1 <<< "$DEVICE" | cut -d " " -f 1)"
+
+        if [ ! "$DEVICE" ]; then
+            if [[ "$MOUNTPOINT" == "/dt" ]]; then
+                GET_DEVICE_FROM_MOUNTPOINT "/dtb"
+            elif [[ "$MOUNTPOINT" == "/system" ]]; then
+                GET_DEVICE_FROM_MOUNTPOINT "/"
+            else
+                LOGW "No entry for \"$MOUNTPOINT\" found in target fstab"
+                exit 1
+            fi
+        else
+            echo -n "\"$DEVICE\""
+        fi
+    fi
+}
 
 # PRINT_ASSERTIONS <info>
 # Returns the assertions code text to be used in the updater-script file.
@@ -58,9 +114,9 @@ PRINT_BUILD_INFO()
     local SOURCE_BUILD_INFO
     local TARGET_BUILD_INFO
 
-    if [ "$#" == "1" ]; then
+    if [[ "$#" == "1" ]]; then
         TARGET_BUILD_INFO="$1"
-    elif [ "$#" == "2" ]; then
+    elif [[ "$#" == "2" ]]; then
         SOURCE_BUILD_INFO="$1"
         TARGET_BUILD_INFO="$2"
     else
@@ -156,14 +212,12 @@ SIGN_IMAGE_WITH_AVB()
         PARTITION_NAME="$(basename "$FILE")"
         PARTITION_NAME="${PARTITION_NAME//.img/}"
 
-        local PARTITION_SIZE
-        PARTITION_SIZE="TARGET_$(tr "[:lower:]" "[:upper:]" <<< "$PARTITION_NAME")_PARTITION_SIZE"
-        _CHECK_NON_EMPTY_PARAM "$PARTITION_SIZE" "${!PARTITION_SIZE//none/}" || return 1
+        _GET_PARTITION_SIZE "$PARTITION_NAME" > /dev/null || return 1
 
         local CMD
         CMD+="avbtool add_hash_footer "
         CMD+="--image \"$FILE\" "
-        CMD+="--partition_size \"${!PARTITION_SIZE}\" "
+        CMD+="--partition_size \"$(_GET_PARTITION_SIZE "$PARTITION_NAME")\" "
         CMD+="--partition_name \"$PARTITION_NAME\" "
         CMD+="--hash_algorithm \"sha256\" "
         CMD+="--algorithm \"SHA256_RSA4096\" "
