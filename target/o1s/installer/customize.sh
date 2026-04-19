@@ -1,11 +1,11 @@
-LOG "- Downloading BL_G991BXXSJHZC2_G991BXXSJHZC2_MQB107294787_REV01_user_low_ship_MULTI_CERT.tar.md5"
+LOG "- Downloading BL_G991NKSSCHZA9_G991NKSSCHZA9_MQB107174732_REV01_user_low_ship_MULTI_CERT.tar.md5"
 DOWNLOAD_FILE \
-    "https://github.com/UN1CA/proprietary_vendor_samsung_exynos2100/releases/download/G991BXXSJHZC2_XEO_OXM/BL_G991BXXSJHZC2_G991BXXSJHZC2_MQB107294787_REV01_user_low_ship_MULTI_CERT.tar.md5" \
-    "$TMP_DIR/BL_G991BXXSJHZC2_G991BXXSJHZC2_MQB107294787_REV01_user_low_ship_MULTI_CERT.tar.md5" || return 1
-LOG "- Downloading CP_G991BXXSJHZA6_CP32677249_MQB105755308_REV01_user_low_ship_MULTI_CERT.tar.md5"
+    "https://github.com/UN1CA/proprietary_vendor_samsung_exynos2100/releases/download/G991NKSSCHZA9_KOO_OKR/BL_G991NKSSCHZA9_G991NKSSCHZA9_MQB107174732_REV01_user_low_ship_MULTI_CERT.tar.md5" \
+    "$TMP_DIR/BL_G991NKSSCHZA9_G991NKSSCHZA9_MQB107174732_REV01_user_low_ship_MULTI_CERT.tar.md5" || return 1
+LOG "- Downloading CP_G991NKOSCHZA5_CP32602490_MQB105445708_REV01_user_low_ship_MULTI_CERT.tar.md5"
 DOWNLOAD_FILE \
-    "https://github.com/UN1CA/proprietary_vendor_samsung_exynos2100/releases/download/G991BXXSJHZC2_XEO_OXM/CP_G991BXXSJHZA6_CP32677249_MQB105755308_REV01_user_low_ship_MULTI_CERT.tar.md5" \
-    "$TMP_DIR/CP_G991BXXSJHZA6_CP32677249_MQB105755308_REV01_user_low_ship_MULTI_CERT.tar.md5" || return 1
+    "https://github.com/UN1CA/proprietary_vendor_samsung_exynos2100/releases/download/G991NKSSCHZA9_KOO_OKR/CP_G991NKOSCHZA5_CP32602490_MQB105445708_REV01_user_low_ship_MULTI_CERT.tar.md5" \
+    "$TMP_DIR/CP_G991NKOSCHZA5_CP32602490_MQB105445708_REV01_user_low_ship_MULTI_CERT.tar.md5" || return 1
 
 while IFS= read -r f; do
     FILE_NAME="$(basename "$f")"
