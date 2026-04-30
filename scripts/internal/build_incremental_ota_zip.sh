@@ -486,9 +486,11 @@ for p in $PARTITIONS_LIST; do
     fi
 
     if [ -f "$TMP_DIR/source/$p.img" ]; then
-        _CHECK_NON_EMPTY_PARAM "TARGET_CACHE_PARTITION_SIZE" "${TARGET_CACHE_PARTITION_SIZE//none/}" || exit 1
-        LOG "- Generating $p.img block diff"
-        EVAL "img2sdat -o \"$TMP_DIR\" -c \"$TARGET_CACHE_PARTITION_SIZE\" --src-image \"$TMP_DIR/source/$p.img\" --src-block-map \"$TMP_DIR/source/$p.map\" --tgt-block-map \"$TMP_DIR/target/$p.map\" \"$TMP_DIR/target/$p.img\"" || exit 1
+        if [[ "$(sha1sum "$TMP_DIR/source/$p.img")" != "$(sha1sum "$TMP_DIR/target/$p.img")" ]]; then
+            _CHECK_NON_EMPTY_PARAM "TARGET_CACHE_PARTITION_SIZE" "${TARGET_CACHE_PARTITION_SIZE//none/}" || exit 1
+            LOG "- Generating $p.img block diff"
+            EVAL "img2sdat -o \"$TMP_DIR\" -c \"$TARGET_CACHE_PARTITION_SIZE\" --src-image \"$TMP_DIR/source/$p.img\" --src-block-map \"$TMP_DIR/source/$p.map\" --tgt-block-map \"$TMP_DIR/target/$p.map\" \"$TMP_DIR/target/$p.img\"" || exit 1
+        fi
         rm -f "$TMP_DIR/source/$p.img" "$TMP_DIR/source/$p.map" \
             "$TMP_DIR/target/$p.img" "$TMP_DIR/target/$p.map"
     else
