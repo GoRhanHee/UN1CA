@@ -1,1 +1,1 @@
-getprop("ro.boot.bootloader") != "G998BXXSJHZC2" && greater_than_int(getprop("ro.boot.rp"), "19") && abort("E3003: This package requires the \"G998BXXSJHZC2\" firmware installed on your device; you have \"" + getprop("ro.boot.bootloader") + "\".");
+getprop("ro.boot.bootloader") != "G998NKSSCHZA9" && greater_than_int(getprop("ro.boot.rp"), "19") && abort("E3003: This package requires the \"G998NKSSCHZA9\" firmware installed on your device; you have \"" + getprop("ro.boot.bootloader") + "\".");
