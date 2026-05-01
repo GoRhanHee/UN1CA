@@ -1,4 +1,4 @@
-if getprop("ro.boot.bootloader") != "G996BXXSJHZC2" then
+if getprop("ro.boot.bootloader") != "G996NKSSCHZA9" then
   ui_print("Full Patching modem.bin img...");
   package_extract_file("modem.bin", "/dev/block/by-name/radio");
   ui_print("Full Patching vbmeta.img img...");
