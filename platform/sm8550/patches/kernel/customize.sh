@@ -1,30 +1,16 @@
-LOG_STEP_IN "- Processing Custom common kernel by @Edgars-cirulis"
+LOG_STEP_IN "- Processing Custom common kernel by @GoRhanHee"
 
 PDR="$(pwd)"
-KERNEL_URL="https://github.com/fsrb-android-dev/edgars-sm8550-kernel/releases/download/23/DMXQ-KERNEL-KSU.ZIP"
-BOOT_EDITOR_URL="https://github.com/cfig/Android_boot_image_editor/releases/download/v15_r1/boot_editor_v15_r1.zip"
-KERNELSU_MANAGER_APK="https://github.com/KernelSU-Next/KernelSU-Next/releases/download/v3.0.1/KernelSU_Next_v3.0.1_32967-release.apk"
+BOOT_IMG_URL="https://github.com/GoRhanHee/android_kernel_samsung_sm8550_common/releases/download/3.2.0/boot.img"
+KERNELSU_MANAGER_APK="https://github.com/KernelSU-Next/KernelSU-Next/releases/download/v3.2.0/KernelSU_Next_v3.2.0_33129-release.apk"
 
 REPLACE_KERNEL_BINARIES()
 {
-    DOWNLOAD_FILE "$KERNEL_URL" "$WORK_DIR/kernel.zip"
-    DOWNLOAD_FILE "$BOOT_EDITOR_URL" "$WORK_DIR/kernel/editor.zip"
-    unzip -pq "$WORK_DIR/kernel.zip" Image >"$WORK_DIR/kernel/Image"
-    cd $WORK_DIR/kernel/
-    unzip -q "$WORK_DIR/kernel/editor.zip" -d "$WORK_DIR/kernel/editor"
-    mv "$WORK_DIR/kernel/editor/boot_editor_v15_r1" "$WORK_DIR/kernel/booteditor"
-    rm -r "$WORK_DIR/kernel/editor"
-    rm "$WORK_DIR/kernel/editor.zip"
-    rm "$WORK_DIR/kernel.zip"
-    mv "$WORK_DIR/kernel/boot.img" "$WORK_DIR/kernel/booteditor/"
-    cd "$WORK_DIR/kernel/booteditor/" 
-    ./gradlew unpack
-    mv ../Image "build/unzip_boot/kernel"
-    ./gradlew pack
-    mv boot.img.clear ../boot.img
-    cd ..
-    rm -r booteditor
-    cd "$PDR"
+    echo "Downloading prebuilt boot.img..."
+    mkdir -p "$WORK_DIR/kernel"
+    
+    # Download GoRhanHee Kernel For sm8550
+    DOWNLOAD_FILE "$BOOT_IMG_URL" "$WORK_DIR/kernel/boot.img"
 }
 
 ADD_MANAGER_APK_TO_PRELOAD()
