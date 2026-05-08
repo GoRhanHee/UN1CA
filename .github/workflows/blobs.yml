@@ -65,6 +65,15 @@ jobs:
           - module: "Galaxy S23 FE (r11sxxx)"
             device: "r11sxxx"
             firmware: "SM-S711B/EUX/358615311234564"
+          - module: "Galaxy S23 Korea (dm1qksx)"
+            device: "dm1qksx"
+            firmware: "SM-S911N/KOR/351357511234568"  
+          - module: "Galaxy S23+ Korea (dm2qksx)"
+            device: "dm2qksx"
+            firmware: "SM-S916N/KOR/350806071234567"
+          - module: "Galaxy S23 Ultra Korea (dm3qksx)"
+            device: "dm3qksx"
+            firmware: "SM-S918N/KOO/351747951234567"     
 
     steps:
       - name: Checkout repo
