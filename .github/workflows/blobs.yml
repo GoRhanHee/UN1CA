@@ -70,7 +70,7 @@ jobs:
             firmware: "SM-S911N/KOO/351357511234568"  
           - module: "Galaxy S23+ Korea (dm2qksx)"
             device: "dm2qksx"
-            firmware: "SM-S916N/KOO/350806071234567"
+            firmware: "SM-S916N/KOO/350309331234568"
           - module: "Galaxy S23 Ultra Korea (dm3qksx)"
             device: "dm3qksx"
             firmware: "SM-S918N/KOO/351747951234567"     
