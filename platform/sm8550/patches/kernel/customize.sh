@@ -1,15 +1,15 @@
-LOG_STEP_IN "- Processing Custom common kernel by @GoRhanHee"
+LOG_STEP_IN "- Processing SM8550-Common Kernel by @GoRhanHee"
 
 PDR="$(pwd)"
-BOOT_IMG_URL="https://github.com/GoRhanHee/android_kernel_samsung_sm8550_common/releases/download/3.2.0/boot.img"
-KERNELSU_MANAGER_APK="https://github.com/KernelSU-Next/KernelSU-Next/releases/download/v3.2.0/KernelSU_Next_v3.2.0_33129-release.apk"
+BOOT_IMG_URL="https://github.com/GoRhanHee/android_kernel_samsung_sm8550_common/releases/download/5.15.206/boot.img"
+KERNELSU_MANAGER_APK="https://github.com/GoRhanHee/android_kernel_samsung_sm8550_common/releases/download/5.15.206/KernelSU_Next_v3.2.0-21-g5a4a7187_33150-release.apk"
 
 REPLACE_KERNEL_BINARIES()
 {
     echo "Downloading prebuilt boot.img..."
     mkdir -p "$WORK_DIR/kernel"
     
-    # Download GoRhanHee Kernel For sm8550
+    # Download GoRhanHee Kernel
     DOWNLOAD_FILE "$BOOT_IMG_URL" "$WORK_DIR/kernel/boot.img"
 }
 
