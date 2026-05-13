@@ -1,7 +1,7 @@
 SKIPUNZIP=1
 
 mkdir -p "$WORK_DIR/odm/firmware"
-cp -a --preserve=all "$SRC_DIR/platform/sm8550/patches/china/vendor/etc/init/hw/"* "$WORK_DIR/vendor/etc/init/hw"
+cp -a --preserve=all "$SRC_DIR/platform/sm8550/patches/korea/vendor/etc/init/hw/"* "$WORK_DIR/vendor/etc/init/hw"
 
 BLOBS="
 CAMERA_ICP.b20

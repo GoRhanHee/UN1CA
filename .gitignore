@@ -12,3 +12,7 @@ security/unica_platform.pk8
 !.gitattributes
 !.gitignore
 !.gitmodules
+
+# For MacOS
+.DS_Store
+**/.DS_Store
