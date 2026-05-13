@@ -73,7 +73,10 @@ jobs:
             firmware: "SM-S916N/KOO/350309331234568"
           - module: "Galaxy S23 Ultra Korea (dm3qksx)"
             device: "dm3qksx"
-            firmware: "SM-S918N/KOO/351747951234567"     
+            firmware: "SM-S918N/KOO/351747951234567"
+          - module: "Galaxy Z Fold5 (q5qksx)"
+            device: "q5qksx"
+            firmware: "SM-F946N/KOO/350443701234567"        
 
     steps:
       - name: Checkout repo
