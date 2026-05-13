@@ -25,8 +25,8 @@ system/lib64/libhigh_dynamic_range_bokeh.so
 system/lib64/libhumantracking.arcsoft.so
 system/lib64/libhybridHDR_wrapper.camera.samsung.so
 system/lib64/libimage_enhancement.arcsoft.so
-system/lib64/libmacroclearshot_raw.arcsoft.so
-system/lib64/libmacroclearshot_raw_wrapper_v1.camera.samsung.so
+# system/lib64/libmacroclearshot_raw.arcsoft.so
+# system/lib64/libmacroclearshot_raw_wrapper_v1.camera.samsung.so
 system/lib64/libsimba.media.samsung.so
 "
 for blob in $BLOBS_LIST
