@@ -28,7 +28,7 @@
     <string name="unica_keybox_toast_error_xml">Nie można przetworzyć pliku XML.</string>
     <string name="unica_keybox_toast_loaded">Załadowano plik keybox.</string>
     <string name="unica_keybox_toast_not_gak">Keybox nie jest podpisany przez Google.</string>
-    <string name="unica_keybox_toast_not_valid">Plik keybox jest nieważny.</string>
+    <string name="unica_keybox_toast_not_valid">Plik keybox jest niepoprawny.</string>
     <string name="unica_launcher_anim_type_title">Typ animacji ekranu głównego</string>
     <string name="unica_max_refresh_rate_title">Wymuś maksymalną płynność ruchu</string>
     <string name="unica_menu_item_reboot_download_title">Uruchom ponownie do trybu Download</string>
